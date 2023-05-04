@@ -84,4 +84,23 @@ impl Drop for ThreadPool {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
 
+    #[test]
+    fn should_create_successfully() {
+        let pool = ThreadPool::new(4);
+        assert_eq!(pool.workers.len(), 4);
+        if let None = pool.sender {
+            panic!("didn't create the sender");
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    fn should_execute_jobs() {
+        let pool = ThreadPool::new(4);
+        pool.execute(move || panic!("executed!"));
+    }
+}
