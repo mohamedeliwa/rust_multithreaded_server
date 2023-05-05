@@ -30,7 +30,17 @@ fn handle_connection(mut stream: TcpStream) {
     // reading the first line of the http request
     // The first unwrap takes care of the Option and stops the program if the iterator has no items.
     // The second unwrap handles the Result
-    let request_line = buf_reader.lines().next().unwrap().unwrap();
+    let request_line = match buf_reader.lines().next() {
+        Some(result) => match result {
+            Ok(line) => line,
+            // stopping request execution and returning in case of
+            // failing to extract line
+            Err(_) => return,
+        },
+        // stopping request execution and returning in case of
+        // the first line is empty
+        None => return,
+    };
 
     let (status_line, filename) = match &request_line[..] {
         "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
